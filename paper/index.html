@@ -1,1 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>
+    Predicting Near-Term Search-Visibility Decline for Content Review Prioritization
+  </title>
+
+  <style>
+    :root {
+      --background: #f7f8fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #5f6b7a;
+      --border: #dfe4ea;
+      --accent: #233876;
+      --accent-light: #eef2ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      line-height: 1.7;
+    }
+
+    main {
+      max-width: 1050px;
+      margin: auto;
+      padding: 45px 20px 80px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #17264e, #5067b8);
+      color: white;
+      padding: 48px;
+      border-radius: 24px;
+      margin-bottom: 25px;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.8rem;
+      opacity: 0.85;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      line-height: 1.08;
+      margin: 15px 0;
+    }
+
+    .subtitle {
+      font-size: 1.08rem;
+      opacity: 0.95;
+      max-width: 850px;
+    }
+
+    nav {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 18px 20px;
+      border-radius: 16px;
+      margin-bottom: 25px;
+    }
+
+    nav a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-right: 14px;
+      font-size: 0.92rem;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      margin: 22px 0;
+      box-shadow: 0 8px 30px rgba(20, 30, 50, 0.04);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    h3 {
+      color: var(--accent);
+      margin-top: 28px;
+    }
+
+    .lead {
+      font-size: 1.1rem;
+    }
+
+    .callout {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent);
+      padding: 18px 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 25px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .metric strong {
+      display: block;
+      color: var(--accent);
+      font-size: 2rem;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--border);
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: #f3f5f8;
+    }
+
+    code {
+      background: #f0f2f6;
+      padding: 2px 5px;
+      border-radius: 5px;
+    }
+
+    .result-highlight {
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    footer {
+      color: var(--muted);
+      padding: 15px 5px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 760px) {
+      header {
+        padding: 30px 24px;
+      }
+
+      section {
+        padding: 22px;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      nav a {
+        display: inline-block;
+        margin-bottom: 8px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<main>
+
+  <!-- HEADER -->
+
+  <header>
+    <div class="eyebrow">
+      Applied Search Intelligence · FlyRank ML Internship
+    </div>
+
+    <h1>
+      Predicting Near-Term Search-Visibility Decline for Content Review Prioritization
+    </h1>
+
+    <p class="subtitle">
+      A forward-looking, leakage-aware ranking study comparing a transparent
+      visibility baseline with Logistic Regression and Random Forest for
+      prioritizing content pages for human review.
+    </p>
+  </header>
+
+  <!-- NAVIGATION -->
+
+  <nav>
+    <a href="#abstract">Abstract</a>
+    <a href="#problem">Problem</a>
+    <a href="#data">Data</a>
+    <a href="#methodology">Methodology</a>
+    <a href="#results">Results</a>
+    <a href="#limitations">Limitations</a>
+    <a href="#recommendations">Recommendations</a>
+    <a href="#reproducibility">Reproducibility</a>
+    <a href="#credit">Data Credit</a>
+  </nav>
+
+  <!-- 1. ABSTRACT -->
+
+  <section id="abstract">
+
+    <h2>1. Title + Abstract</h2>
+
+    <p class="lead">
+      This study asks whether historical search-performance signals can
+      identify content pages that are likely to experience a meaningful
+      decline in search impressions over the following 30 days. Using the
+      FlyRank pseudonymized warehouse release, the analysis builds a
+      forward-looking feature set from the preceding 90 days and defines a
+      future decline when target-window impressions fall below 80% of the
+      immediately preceding 30-day reference period. A transparent
+      historical-visibility baseline is compared with Logistic Regression and
+      Random Forest using a client-held-out evaluation and Precision@K ranking
+      metrics. Logistic Regression achieves Precision@20 of 0.85,
+      Precision@50 of 0.86, and Precision@100 of 0.83, compared with 0.55,
+      0.68, and 0.74 for the baseline. The result is directional
+      decision-support evidence that a simple learned model can improve the
+      prioritization of pages for human review, but it does not prove
+      causality or guarantee that a refresh will recover performance.
+    </p>
+
+    <div class="metrics">
+
+      <div class="metric">
+        <strong>0.85</strong>
+        <span>Logistic Regression Precision@20</span>
+      </div>
+
+      <div class="metric">
+        <strong>0.86</strong>
+        <span>Logistic Regression Precision@50</span>
+      </div>
+
+      <div class="metric">
+        <strong>0.83</strong>
+        <span>Logistic Regression Precision@100</span>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- 2. PROBLEM -->
+
+  <section id="problem">
+
+    <h2>2. Introduction / Problem Statement</h2>
+
+    <p>
+      Content teams often have more pages to review than they can investigate
+      at once. The practical decision is therefore not whether every page is
+      healthy or unhealthy, but which pages deserve attention first.
+    </p>
+
+    <div class="callout">
+
+      <strong>Research question:</strong>
+
+      Can historical search-performance signals identify pages that are likely
+      to experience a meaningful search-impression decline in the next 30 days,
+      so reviewers can prioritize which pages to inspect first?
+
+    </div>
+
+    <p>
+      The intended output is a ranked review queue. A high-ranked page is a
+      candidate for investigation, not an automatic instruction to refresh or
+      change the page.
+    </p>
+
+    <p>
+      This project follows the
+      <strong>Refresh / Content Opportunity Scoring</strong> lane.
+    </p>
+
+  </section>
+
+  <!-- 3. DATA -->
+
+  <section id="data">
+
+    <h2>3. Data</h2>
+
+    <p>
+      This study uses the FlyRank pseudonymized warehouse release
+      <code>flyrank_pseudonymized_warehouse_release_v20260703</code>.
+    </p>
+
+    <table>
+
+      <tr>
+        <th>Item</th>
+        <th>Value</th>
+      </tr>
+
+      <tr>
+        <td>Main table</td>
+        <td><code>fact_content_daily_performance</code></td>
+      </tr>
+
+      <tr>
+        <td>Supporting tables</td>
+        <td>
+          <code>dim_clients</code>,
+          <code>dim_content</code>
+        </td>
+      </tr>
+
+      <tr>
+        <td>Daily fact coverage</td>
+        <td>2025-01-27 → 2026-06-30</td>
+      </tr>
+
+      <tr>
+        <td>Working observations</td>
+        <td>148,118</td>
+      </tr>
+
+      <tr>
+        <td>Future-decline rate</td>
+        <td>66.1%</td>
+      </tr>
+
+    </table>
+
+    <p>
+      The daily fact table is at
+      <strong>report-date × client × content</strong> grain.
+    </p>
+
+    <p>
+      The experiment uses a historical feature window from
+      <strong>2026-03-03 to 2026-05-31</strong>,
+      a 30-day reference window from
+      <strong>2026-05-02 to 2026-05-31</strong>,
+      and a future target window from
+      <strong>2026-06-01 to 2026-06-30</strong>.
+    </p>
+
+    <p>
+      The analysis excludes client names, domains, URLs, raw private queries,
+      credentials, and raw text. Pseudonymous identifiers are used only for
+      grouping and validation.
+    </p>
+
+  </section>
+
+  <!-- 4. METHODOLOGY -->
+
+  <section id="methodology">
+
+    <h2>4. Methodology</h2>
+
+    <h3>Decision-point and time-window design</h3>
+
+    <p>
+      The analysis is explicitly forward-looking. Features are calculated only
+      from information available before the June target window.
+    </p>
+
+    <ul>
+      <li>Historical feature window: 2026-03-03 → 2026-05-31</li>
+      <li>Reference window: 2026-05-02 → 2026-05-31</li>
+      <li>Future target window: 2026-06-01 → 2026-06-30</li>
+    </ul>
+
+    <h3>Future decline label</h3>
+
+    <div class="callout">
+
+      <code>
+        future_30d_impressions &lt;
+        0.80 × reference_30d_impressions
+      </code>
+
+    </div>
+
+    <p>
+      A minimum historical impression threshold is used to reduce the
+      influence of extremely low-volume pages.
+    </p>
+
+    <p>
+      This is a future outcome rather than the starter proxy label
+      <code>is_declining_label = trend_direction == "down"</code>.
+      The fields <code>trend_direction</code> and
+      <code>trend_pct</code> are not model features.
+    </p>
+
+    <h3>Features</h3>
+
+    <p>
+      Historical observable inputs include impressions, clicks, average
+      position, sessions, engaged sessions, pageviews, scroll events, active
+      search days, CTR, engagement rate, scrolls per pageview, log-transformed
+      activity totals, and search-day activity rate.
+    </p>
+
+    <h3>Baseline</h3>
+
+    <p>
+      The transparent baseline is:
+    </p>
+
+    <div class="callout">
+
+      <code>baseline_score = log1p(impressions_90d)</code>
+
+    </div>
+
+    <p>
+      The baseline represents a simple review-priority policy in which pages
+      with greater historical exposure receive higher priority.
+    </p>
+
+    <h3>Models</h3>
+
+    <p>
+      Two learned models were evaluated:
+    </p>
+
+    <ul>
+      <li>Logistic Regression</li>
+      <li>Random Forest</li>
+    </ul>
+
+    <p>
+      The purpose was to test whether learned ranking improves prioritization
+      over a transparent baseline rather than to maximize model complexity.
+    </p>
+
+    <h3>Validation</h3>
+
+    <p>
+      The baseline and learned models were evaluated on the same client-held-out
+      test set. Client identifiers were used only to form the grouped split,
+      ensuring that pages from a held-out client were not also used for
+      training.
+    </p>
+
+    <p>
+      The main ranking metrics were Precision@20, Precision@50, and
+      Precision@100.
+    </p>
+
+    <h3>Leakage checks</h3>
+
+    <p>
+      Target-derived fields, future-period fields, and identifier columns
+      were excluded from the feature matrix. The feature window ends before
+      the future target window begins.
+    </p>
+
+  </section>
+
+  <!-- 5. RESULTS -->
+
+  <section id="results">
+
+    <h2>5. Results</h2>
+
+    <table>
+
+      <thead>
+
+        <tr>
+          <th>Method</th>
+          <th>Precision@20</th>
+          <th>Precision@50</th>
+          <th>Precision@100</th>
+          <th>Average Precision</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td><strong>Logistic Regression</strong></td>
+          <td><strong>0.85</strong></td>
+          <td><strong>0.86</strong></td>
+          <td><strong>0.83</strong></td>
+          <td>0.6285</td>
+        </tr>
+
+        <tr>
+          <td>Random Forest</td>
+          <td><strong>0.85</strong></td>
+          <td>0.78</td>
+          <td>0.78</td>
+          <td><strong>0.7032</strong></td>
+        </tr>
+
+        <tr>
+          <td>Baseline</td>
+          <td>0.55</td>
+          <td>0.68</td>
+          <td>0.74</td>
+          <td>0.6387</td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+    <p class="result-highlight">
+      Logistic Regression is the strongest method at all three top-K review
+      cutoffs.
+    </p>
+
+    <p>
+      At Precision@50, Logistic Regression achieves
+      <strong>0.86</strong>, compared with <strong>0.68</strong> for the
+      baseline.
+    </p>
+
+    <p>
+      Interpreted as a 50-page review queue, this corresponds to approximately
+      43 future-decline pages in the Logistic Regression top 50 versus
+      approximately 34 for the baseline on this validation sample.
+    </p>
+
+    <p>
+      Random Forest ties Logistic Regression at Precision@20 and has the
+      highest Average Precision, but trails Logistic Regression at the
+      Precision@50 and Precision@100 review cutoffs.
+    </p>
+
+    <div class="callout">
+
+      <strong>Observed result:</strong>
+
+      The simpler Logistic Regression model provides the strongest
+      top-of-queue prioritization under this client-held-out validation design.
+
+    </div>
+
+  </section>
+
+  <!-- 6. LIMITATIONS -->
+
+  <section id="limitations">
+
+    <h2>6. Limitations &amp; Honest Framing</h2>
+
+    <p>
+      This work is <strong>decision-support</strong>, not causal inference.
+    </p>
+
+    <p>
+      The target identifies pages whose search impressions decrease by more
+      than 20% during the target 30-day period relative to the immediately
+      preceding 30-day reference period. It does not establish why a page
+      declined or whether refreshing that page would cause recovery.
+    </p>
+
+    <p>
+      Several processes can resemble decline, including seasonality,
+      consolidation between related pages, changes in search-result behavior,
+      and ordinary traffic noise.
+    </p>
+
+    <p>
+      The experiment also uses one defined future target window and one
+      client-held-out validation design. Performance may therefore differ for
+      other periods, clients, or traffic conditions.
+    </p>
+
+    <p>
+      The ranking should be used to prioritize human investigation, not as an
+      automatic instruction to refresh, rewrite, prune, merge, or otherwise
+      change content.
+    </p>
+
+    <p>
+      All findings are framed using observed, measured, directional, and
+      decision-support language.
+    </p>
+
+  </section>
+
+  <!-- 7. RECOMMENDATIONS -->
+
+  <section id="recommendations">
+
+    <h2>7. Ranked Recommendations</h2>
+
+    <p>
+      The final queue ranks held-out content items by Logistic Regression
+      probability of future decline.
+    </p>
+
+    <h3>1. High-visibility pages</h3>
+
+    <p>
+      <strong>Reason code:</strong>
+      <code>high_visibility_page</code>
+    </p>
+
+    <p>
+      <strong>Suggested action:</strong>
+      Review for refresh or protection.
+    </p>
+
+    <p>
+      Highly visible pages with elevated model risk deserve earlier human
+      investigation because a meaningful decline may represent a consequential
+      review opportunity.
+    </p>
+
+    <h3>2. High-demand position opportunities</h3>
+
+    <p>
+      <strong>Reason code:</strong>
+      <code>high_demand_position_opportunity</code>
+    </p>
+
+    <p>
+      <strong>Suggested action:</strong>
+      Review content and search-position opportunity.
+    </p>
+
+    <h3>3. Visible low-CTR pages</h3>
+
+    <p>
+      <strong>Reason code:</strong>
+      <code>visible_low_ctr_page</code>
+    </p>
+
+    <p>
+      <strong>Suggested action:</strong>
+      Review title/meta and intent match.
+    </p>
+
+    <h3>4. Deeper-position pages</h3>
+
+    <p>
+      <strong>Reason code:</strong>
+      <code>deep_position_risk</code>
+    </p>
+
+    <p>
+      <strong>Suggested action:</strong>
+      Review whether the page still merits investment.
+    </p>
+
+    <h3>Top-ranked examples from the current run</h3>
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Model probability</th>
+          <th>Confidence</th>
+          <th>Reason</th>
+          <th>Suggested action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td>1</td>
+          <td>0.9968</td>
+          <td>High</td>
+          <td>High-demand position opportunity</td>
+          <td>Review content and search-position opportunity</td>
+        </tr>
+
+        <tr>
+          <td>2</td>
+          <td>0.9902</td>
+          <td>High</td>
+          <td>High-demand position opportunity</td>
+          <td>Review content and search-position opportunity</td>
+        </tr>
+
+        <tr>
+          <td>3</td>
+          <td>0.9887</td>
+          <td>High</td>
+          <td>Visible low CTR</td>
+          <td>Review title/meta and intent match</td>
+        </tr>
+
+        <tr>
+          <td>4</td>
+          <td>0.9874</td>
+          <td>High</td>
+          <td>Visible low CTR</td>
+          <td>Review title/meta and intent match</td>
+        </tr>
+
+        <tr>
+          <td>5</td>
+          <td>0.9845</td>
+          <td>High</td>
+          <td>Visible low CTR</td>
+          <td>Review title/meta and intent match</td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+    <p class="small">
+      The complete top-20 queue is generated by the notebook. It is intended
+      for human review and decision support.
+    </p>
+
+  </section>
+
+  <!-- 8. REPRODUCIBILITY -->
+
+  <section id="reproducibility">
+
+    <h2>8. Reproducibility</h2>
+
+    <p>
+      The complete analysis is implemented in
+      <code>work/notebooks/capstone.ipynb</code>.
+    </p>
+
+    <ol>
+      <li>Install the required Python packages.</li>
+      <li>Authenticate to the gated FlyRank release without storing credentials in code.</li>
+      <li>Query hosted Parquet data with DuckDB.</li>
+      <li>Construct the historical feature and future target windows.</li>
+      <li>Run leakage checks.</li>
+      <li>Build the transparent baseline.</li>
+      <li>Train Logistic Regression and Random Forest.</li>
+      <li>Evaluate Precision@20, @50, and @100 on held-out clients.</li>
+      <li>Generate the ranked recommendation queue.</li>
+    </ol>
+
+    <p>
+      The full warehouse and Hugging Face token are not committed to the
+      public repository.
+    </p>
+
+    <p>
+      Repository:
+      <a href="https://github.com/" target="_blank" rel="noopener">
+        GitHub repository
+      </a>
+    </p>
+
+  </section>
+
+  <!-- 9. ACKNOWLEDGEMENTS -->
+
+  <section id="credit">
+
+    <h2>9. Acknowledgments &amp; Data Credit</h2>
+
+    <p>
+      Built on the <strong>FlyRank ML Internship dataset</strong>.
+    </p>
+
+    <p>
+      Data source:
+      <a
+        href="https://flyrank.ai"
+        target="_blank"
+        rel="noopener"
+      >
+        flyrank.ai
+      </a>
+    </p>
+
+    <p class="small">
+      This paper uses the pseudonymized FlyRank internship warehouse and
+      follows the repository's public-safety rules. No private client names,
+      domains, raw queries, credentials, or raw content are published.
+    </p>
+
+  </section>
+
+  <footer>
+
+    <p>
+      Research framing:
+      observed · measured · directional · decision-support
+    </p>
+
+  </footer>
+
+</main>
+
+</body>
+</html>
