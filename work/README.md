@@ -60,13 +60,13 @@ The project produces:
 
 ## Repository Structure
 
-\`\`\`
+​```
 work/
 ├── README.md
 ├── capstone_report.md
 └── notebooks/
     └── capstone.ipynb
-\`\`\`
+​```
 
 ## Reproducibility
 
